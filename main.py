@@ -28,14 +28,33 @@ class BlogEntry(db.Model):
     entry = db.TextProperty(required = True)
     created = db.DateTimeProperty(auto_now_add = True)
 
+def get_posts(limit, offset=0):
+    # TODO: query the database for posts, and return them
+    query = BlogEntry.all().order("-created")
+    posts = query.fetch(limit=limit, offset=offset)
+    return posts
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
-                query = BlogEntry.all().order("-created")
-                recent_posts = query.fetch(limit = 5)
-                t = jinja_env.get_template("blog.html")
-                content = t.render(recent_posts = recent_posts)
-                self.response.write(content)
+        current_page = self.request.get("page")
+        page_limit = 5
+        if current_page == "":
+            current_page = 1
+        else:
+            current_page = int(current_page)
+        offset = (current_page - 1) * page_limit
+        posts = get_posts(page_limit, offset)
+        prev_page = current_page - 1
+        next_offset = current_page * page_limit
+        next_posts = get_posts(page_limit, next_offset)
+        if next_posts:
+            next_page = current_page + 1
+        else:
+            next_page = 0
+
+        t = jinja_env.get_template("blog.html")
+        content = t.render(posts = posts, current_page = current_page, prev_page = prev_page, next_page = next_page)
+        self.response.write(content)
 
 class NewPost(webapp2.RequestHandler):
     def get(self):

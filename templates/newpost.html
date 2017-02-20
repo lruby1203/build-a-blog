@@ -13,9 +13,9 @@
         <label>
             <div><input type=submit name="Post it!" /></div>
         </label>
-<!--        {% if error == True %} -->
-        <div class="error">{{error}}</div>
-<!--        {% endif %}  -->
+        {% if error %}
+            <div class="error">Title and Content are both required.</div>
+        {% endif %}
     </form>
 
 

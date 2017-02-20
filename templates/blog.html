@@ -1,13 +1,19 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Latest Blog Entries</h2>
-<ul>
-    {% for post in recent_posts %}
-    <li>
-        <h3>{{post.title}}</h3>
-        <p>{{post.entry}}</p>
-    </li>
-    {% endfor %}
-</ul>
+    <h2>Latest Blog Entries</h2>
+    <ul>
+        {% for post in posts %}
+        <li>
+            <h3>{{post.title}}</h3>
+            <p>{{post.entry}}</p>
+        </li>
+        {% endfor %}
+    </ul>
+    {% if prev_page != 0 %}
+    <a href="\blog?page={{prev_page}}">Previous</a>
+    {% endif %}
+    {% if next_page != 0 %}
+    <a href="\blog?page={{ next_page }}">Next</a>
+    {% endif %}
 {% endblock %}
