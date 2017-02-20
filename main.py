@@ -50,8 +50,8 @@ class NewPost(webapp2.RequestHandler):
         if title and entry:
             a = BlogEntry(title=title, entry=entry)
             a.put()
-            id=int(a.key().id())
-            self.redirect('/blog/<id:\d+>')
+            blog_id = a.key().id()
+            self.redirect('/blog/'+ str(blog_id))
         else:
             error = True
             t = jinja_env.get_template("newpost.html")
@@ -61,13 +61,16 @@ class NewPost(webapp2.RequestHandler):
 
 class ViewPostHandler(webapp2.RequestHandler):
     def get(self, id):
+#        self.response.write("The id is {0}".format(id))
         key = db.Key.from_path('BlogEntry', int(id))
         entry = db.get(key)
-
         if not entry:
-            self.error(404)
-            return
-        self.render("permalink.html", entry=entry)
+           self.error(404)
+           return
+        t = jinja_env.get_template("permalink.html")
+        content = t.render(entry=entry)
+        self.response.write(content)
+
 app = webapp2.WSGIApplication([
     ('/blog', MainHandler),
     ('/blog/newpost',  NewPost),
