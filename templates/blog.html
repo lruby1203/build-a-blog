@@ -3,9 +3,11 @@
 {% block content %}
 <h2>Latest Blog Entries</h2>
 <ul>
+    {% for post in recent_posts %}
     <li>
-        <h3>{{title}}</h3>
-        <p>{{entry}}</p>
+        <h3>{{post.title}}</h3>
+        <p>{{post.entry}}</p>
     </li>
+    {% endfor %}
 </ul>
 {% endblock %}

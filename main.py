@@ -31,6 +31,14 @@ class BlogEntry(db.Model):
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
+                query = BlogEntry.all().order("-created")
+                recent_posts = query.fetch(limit = 5)
+                t = jinja_env.get_template("blog.html")
+                content = t.render(recent_posts = recent_posts)
+                self.response.write(content)
+
+class NewPost(webapp2.RequestHandler):
+    def get(self):
         t = jinja_env.get_template("newpost.html")
         content = t.render()
         self.response.write(content)
@@ -40,22 +48,28 @@ class MainHandler(webapp2.RequestHandler):
         entry = self.request.get("entry")
         error = False
         if title and entry:
-            self.redirect("/blog")
+            a = BlogEntry(title=title, entry=entry)
+            a.put()
+            id=int(a.key().id())
+            self.redirect('/blog/<id:\d+>')
         else:
             error = True
             t = jinja_env.get_template("newpost.html")
             content = t.render(error = error, title=title, entry=entry)
             self.response.write(content)
 
-class ViewBlog(MainHandler):
-    def get(self):
-        title = self.request.get("title")
-        entry = self.request.get("entry")
-        t = jinja_env.get_template("blog.html")
-        content = t.render(title=title, entry=entry)
-        self.response.write(content)
 
+class ViewPostHandler(webapp2.RequestHandler):
+    def get(self, id):
+        key = db.Key.from_path('BlogEntry', int(id))
+        entry = db.get(key)
+
+        if not entry:
+            self.error(404)
+            return
+        self.render("permalink.html", entry=entry)
 app = webapp2.WSGIApplication([
-    ('/', MainHandler),
-    ('/blog', ViewBlog)
+    ('/blog', MainHandler),
+    ('/blog/newpost',  NewPost),
+    webapp2.Route('/blog/<id:\d+>', ViewPostHandler)
 ], debug=True)
