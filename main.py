@@ -29,7 +29,6 @@ class BlogEntry(db.Model):
     created = db.DateTimeProperty(auto_now_add = True)
 
 def get_posts(limit, offset=0):
-    # TODO: query the database for posts, and return them
     query = BlogEntry.all().order("-created")
     posts = query.fetch(limit=limit, offset=offset)
     return posts
